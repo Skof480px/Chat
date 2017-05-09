@@ -1,0 +1,145 @@
+<!DOCTYPE html> 
+<html>
+<head>
+	<title>Chat</title>
+	<meta charset="utf-8">
+	<script type="text/javascript" src="https://cdn.socket.io/socket.io-1.4.5.js"></script>
+	<style type="text/css">
+	body{ margin:0 auto;}
+
+ @font-face {
+    font-family: 'Helvetica'; 
+    src: url('fonts/Helvetica-Bold.otf') format("opentype"); 
+    font-weight: bold;
+    font-style: normal;
+}
+ @font-face {
+    font-family: 'Josefin-Regular'; 
+    src: url('fonts/Josefin-Regular.ttf') format("opentype"); 
+    font-weight: normal;
+    font-style: normal;
+}
+
+#messages{
+	margin: 10% 25%;
+}
+#messages p{
+	text-align: center;
+	margin: 0;
+	font: 60px 'Helvetica', Arial, Sans-Serif;
+	color: #ccc;
+	opacity: 8;
+	text-shadow: 1px 0 2px rgba(0,0,0,.3);
+}
+.panel{
+	background: rgba(230, 230, 230,.7);
+	height: 17%;
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	box-sizing: border-box;
+	box-shadow: 0 0 10px rgba(230, 230, 230,.7);
+}
+input{
+	width: 100%;
+}
+.inputs{
+	display: flex;
+}
+.input-left, .input-right{
+	margin-top: 2em;
+	flex-grow: 1;
+}
+.input-left{
+	max-width: 15%;
+	padding-right: 0.5em;
+	margin-left: 12.5em;
+	margin-right: 2em;
+}
+.input-left input{
+	outline: none;
+	font: 18px/22px 'Helvetica', Arial, Sans-Serif ;
+	color: rgb(186, 141, 141);
+	border-radius: 35px;
+	border: 1px solid rgba(230, 230, 230,.7);
+	padding: 12px;
+}
+.input-left input::-webkit-input-placeholder{
+	font: 18px/22px 'Josefin-Regular', Arial, Sans-Serif ;
+	color: rgba(204, 204, 204,.8);
+	text-align: center;
+}
+.input-left input::-moz-placeholder{
+	font: 18px/22px 'Josefin-Regular', Arial, Sans-Serif ;
+	color: rgba(204, 204, 204,.8);
+	text-align: center;
+}
+
+.input-right{
+	margin-right: 12.5em;
+}
+.input-right input{
+	outline: none;
+	font: 18px/22px 'Helvetica', Arial, Sans-Serif ;
+	color: rgb(169, 173, 156);
+	border-radius: 85px;
+	border: 1px solid rgba(230, 230, 230,.7);
+	padding: 12px;
+	word-break: break-all;
+}
+.input-right input::-webkit-input-placeholder{
+	font: 24px/24px 'Josefin-Regular', Arial, Sans-Serif ;
+	color: rgba(204, 204, 204,.8);
+	text-align: center;
+}
+.input-right input::-moz-placeholder{
+	font: 24px/24px 'Josefin-Regular', Arial, Sans-Serif ;
+	color: rgba(204, 204, 204,.8);
+	text-align: center;
+}
+
+	</style>
+</head>
+<body>
+	<div id="messages">
+		<p id="greeting">Welcome</p>
+	</div>
+	<div class="panel">
+		<form onsubmit="sendMessage(this.nickname.value, this.message.value); this.message.value = ''; return false;">
+			<div class="inputs">
+				<div class="input-left">
+					<input type="text" name="nickname" autocomplete="off" placeholder="nickname">
+				</div>
+				<div class="input-right">
+					<input type="text" name="message" placeholder="message" autocomplete="off">
+				</div>
+				<input type="submit" style="display: none;">
+			</div>
+		</form>
+	</div>
+
+	<script type="text/javascript">
+		var socket = io({transports: ['websocket']});
+		var messagesContainer = document.getElementById('messages');
+
+		socket.on('message', function(data) {
+			renderMessage(data);
+		})
+
+		function sendMessage(nickname, message) {
+			if(nickname && message) {
+				socket.emit('message', {nickname: nickname, message: message});
+				renderMessage({nickname: nickname, message: message})
+			}
+		}
+
+		function renderMessage(data) {
+			var div = document.createElement('DIV');
+			div.innerHTML = '<span><strong>' + data.nickname + ':</strong>' + data.message + '</span>';
+			messagesContainer.insertBefore(div, messagesContainer.firstChild);
+			document.getElementById('greeting').style.display = 'none';
+		}
+	</script>
+</body>
+</html>
